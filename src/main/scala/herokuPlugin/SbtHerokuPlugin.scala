@@ -2,9 +2,10 @@ package herokuPlugin
 
 import sbt._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.jamesward.scheroku.HerokuAPI
 
 /**
  * An autoplugin that deploys to heroku.
@@ -46,6 +47,10 @@ object SbtHerokuPlugin extends AutoPlugin {
 
 object SbtHeroku {
 
+  object HerokuApi extends HerokuAPI {
+    override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  }
+
   def apply(deployTarget: String, credentialsFile: File): String = {
     println(s"deployTarget $deployTarget")
 
@@ -70,7 +75,7 @@ object SbtHeroku {
   }
 
   private def fetchApiKey(username: String, pass: String) = {
-    Future.successful("sdaf3242345j")
+    HerokuApi.getApiKey(username, pass)
   }
 
   private def saveHerokuCredentials(to: File)(apiKey: String) = {
@@ -85,11 +90,10 @@ object SbtHeroku {
         if (prompt) {
           println("heroku-sbt requires your heroku api key.")
           val (username, password) = requestCredentials()
-          val fc = fetchApiKey(username, password) map  {
+          fetchApiKey(username, password) map  {
             key => saveHerokuCredentials(credsFile)(key)
              Some(HerokuCredentials(key))
-          }
-          fc
+          } 
         } else {
           val errorMsg = s"Missing heroku api key credentials $credsFile."
           println(errorMsg)

@@ -13,12 +13,20 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
+resolvers += bintray.Opts.resolver.mavenRepo("jamesward")
+
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+
 libraryDependencies ++= Seq(
-  // RSS fetcher (note: the website is horribly outdated)
-  "com.rometools" % "rome-fetcher" % "1.5.0"
+  "com.jamesward" %% "scheroku" % "1.0-e40f9e277be4e31d18dcf8033a5985b89096f8d7"
 )
 
 publishMavenStyle := false
 
 /** Console */
 initialCommands in console := "import com.typesafe.sbt.rss._"
+
+bintraySettings
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
+
